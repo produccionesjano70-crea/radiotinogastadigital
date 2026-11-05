@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070b1c">
+<title>Radio Tinogasta Digital - En Vivo</title>
+<meta name="description" content="Escuchá Radio Tinogasta Digital en vivo, 24 horas.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root { --naranja:#ff8a00; --naranja2:#ff5a00; --azul:#2575fc; --fondo:#070b1c; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; min-height: 100vh; min-height: 100dvh; color: #fff; text-align: center;
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--fondo);
+    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
+  /* Fondo neón con degradado encima */
+  .bg { position: fixed; inset: 0; z-index: -1;
+        background: linear-gradient(180deg, rgba(7,11,28,.55) 0%, rgba(7,11,28,.92) 55%, #070b1c 100%), url("fondo.jpg") center top / cover no-repeat; }
+  .wrap { max-width: 460px; margin: 0 auto; padding: 28px 20px 40px; }
+
+  .logo { width: min(260px, 66vw); height: auto; display: block; margin: 0 auto;
+          filter: drop-shadow(0 10px 30px rgba(255,138,0,.45)); animation: flota 5s ease-in-out infinite; }
+  @keyframes flota { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+  .vivo { margin: 18px 0 4px; font-size: .95em; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #ffb347; }
+  .vivo i { display: inline-block; width: 10px; height: 10px; margin-right: 9px; border-radius: 50%; background: #ff3b3b; animation: pulso 1.4s infinite; }
+  @keyframes pulso { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .3; transform: scale(.8); } }
+  .sub { margin: 0 0 22px; color: #cfd8ff; font-size: .95em; }
+
+  .card { padding: 26px 18px 22px; border-radius: 26px; background: rgba(255,255,255,.08);
+          border: 1px solid rgba(255,255,255,.15); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+          box-shadow: 0 20px 50px rgba(0,0,0,.45); }
+
+  /* Ecualizador */
+  .eq { display: flex; align-items: flex-end; justify-content: center; gap: 4px; height: 56px; margin-bottom: 22px; }
+  .eq span { width: 6px; height: 8px; border-radius: 3px; background: linear-gradient(to top, #ff3d9a, #ff8a00, #26c6ff); opacity: .55; transition: height .3s; }
+  .playing .eq span { opacity: 1; animation: barra 1s ease-in-out infinite; }
+  @keyframes barra { 0%,100% { height: 8px; } 50% { height: 52px; } }
+
+  /* Botón grande de play */
+  .play { position: relative; width: 112px; height: 112px; border: 0; border-radius: 50%; cursor: pointer; color: #fff;
+          background: linear-gradient(135deg, var(--naranja), var(--naranja2)); box-shadow: 0 10px 30px rgba(255,100,0,.55);
+          display: inline-flex; align-items: center; justify-content: center; transition: transform .15s; }
+  .play:active { transform: scale(.94); }
+  .play svg { width: 48px; height: 48px; fill: #fff; }
+  .play .ico-pausa { display: none; }
+  .playing .play .ico-play { display: none; }
+  .playing .play .ico-pausa { display: block; }
+  .playing .play::after { content: ""; position: absolute; inset: -10px; border-radius: 50%; border: 2px solid rgba(255,138,0,.7); animation: onda 1.8s ease-out infinite; }
+  @keyframes onda { from { transform: scale(.9); opacity: 1; } to { transform: scale(1.35); opacity: 0; } }
+
+  .estado { margin: 18px 0 4px; min-height: 1.5em; color: #e6ecff; font-weight: 600; }
+  .error { color: #ffb3b3; }
+
+  .vol { display: flex; align-items: center; gap: 12px; margin: 14px auto 0; max-width: 320px; }
+  .vol button { background: none; border: 0; color: #fff; font-size: 1.4em; cursor: pointer; padding: 4px; }
+  .vol input { flex: 1; accent-color: var(--naranja); height: 28px; }
+
+  .acciones { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 24px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 40px; padding: 13px 22px; font-size: 1em; font-weight: 600;
+         color: #fff; text-decoration: none; cursor: pointer; }
+  .btn-wa { background: #25d366; }
+  .btn-instalar { background: var(--azul); display: none; }
+  .btn[hidden] { display: none; }
+  .btn-grande { width: 100%; max-width: 340px; justify-content: center; font-size: 1.1em; padding: 15px 22px; box-shadow: 0 8px 22px rgba(37,211,102,.35); }
+  .btn-fb { background: #1877f2; } .btn-tg { background: #229ed9; } .btn-x { background: #111; border: 1px solid #444; }
+  .btn-nativo { background: linear-gradient(135deg, var(--naranja), var(--naranja2)); }
+  .btn-copiar { background: rgba(255,255,255,.14); }
+  .compartir { margin-top: 28px; padding: 20px 14px; border-radius: 22px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); }
+  .compartir h3 { margin: 0 0 4px; font-size: 1.15em; color: #ffb347; }
+  .compartir p { margin: 0 0 16px; color: #cfd8ff; font-size: .9em; }
+  .redes { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .redes .btn { padding: 11px 18px; font-size: .95em; }
+  .ahora { margin: 4px auto 6px; padding: 12px 14px; max-width: 340px; border-radius: 16px; background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.12); }
+  .ahora[hidden] { display: none; }
+  .ahora small { display: block; color: #ffb347; font-weight: 700; letter-spacing: 2px; font-size: .7em; }
+  .ahora .tema { margin-top: 4px; font-size: 1.05em; font-weight: 700; overflow-wrap: anywhere; }
+  .ahora .artista { margin-top: 2px; color: #cfd8ff; font-size: .95em; overflow-wrap: anywhere; }
+  .ios-tip { display: none; margin-top: 18px; padding: 12px 16px; border-radius: 14px; background: rgba(255,255,255,.08); color: #cfd8ff; font-size: .9em; }
+  .ads { margin-top: 24px; }
+  footer { margin-top: 26px; color: #8e9acb; font-size: .8em; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<main class="wrap" id="app">
+  <img class="logo" src="logo.png" alt="Radio Tinogasta Digital">
+  <div class="vivo"><i></i>Transmitiendo en vivo</div>
+  <p class="sub">Tocá el botón y escuchanos donde estés</p>
+
+  <audio id="player" preload="none"></audio>
+
+  <section class="card">
+    <div class="eq" aria-hidden="true">
+      <span style="animation-delay:-.9s"></span><span style="animation-delay:-.5s"></span><span style="animation-delay:-.2s"></span>
+      <span style="animation-delay:-.7s"></span><span style="animation-delay:-.1s"></span><span style="animation-delay:-.8s"></span>
+      <span style="animation-delay:-.4s"></span><span style="animation-delay:-.6s"></span><span style="animation-delay:-.3s"></span>
+      <span style="animation-delay:-.75s"></span><span style="animation-delay:-.15s"></span><span style="animation-delay:-.55s"></span>
+      <span style="animation-delay:-.35s"></span><span style="animation-delay:-.85s"></span><span style="animation-delay:-.05s"></span>
+    </div>
+
+    <button class="play" id="btnPlay" aria-label="Reproducir o pausar">
+      <svg class="ico-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      <svg class="ico-pausa" viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+    </button>
+
+    <div class="estado" id="estado">Listo para escuchar</div>
+
+    <div class="ahora" id="ahora" hidden>
+      <small>🎵 AHORA SUENA</small>
+      <div class="tema" id="tema"></div>
+      <div class="artista" id="artista"></div>
+    </div>
+
+    <div class="vol">
+      <button id="btnMute" aria-label="Silenciar">🔊</button>
+      <input type="range" id="vol" min="0" max="1" step="0.02" value="1" aria-label="Volumen">
+    </div>
+  </section>
+
+  <div class="acciones">
+    <a class="btn btn-wa btn-grande" id="btnContacto" target="_blank" rel="noopener">💬 Escribinos por WhatsApp</a>
+    <button class="btn btn-instalar" id="btnInstalar">📲 Instalar en mi celular</button>
+  </div>
+
+  <section class="compartir">
+    <h3>📣 Compartí la radio</h3>
+    <p>Mandá el link para que más gente la escuche e instale la app</p>
+    <div class="redes">
+      <button class="btn btn-nativo" id="btnShare" hidden>📤 Compartir</button>
+      <a class="btn btn-wa" id="shWA" target="_blank" rel="noopener">WhatsApp</a>
+      <a class="btn btn-fb" id="shFB" target="_blank" rel="noopener">Facebook</a>
+      <a class="btn btn-tg" id="shTG" target="_blank" rel="noopener">Telegram</a>
+      <a class="btn btn-x" id="shX" target="_blank" rel="noopener">X</a>
+      <button class="btn btn-copiar" id="shCopy">🔗 Copiar link</button>
+    </div>
+  </section>
+  <div class="ios-tip" id="iosTip">En iPhone: tocá el botón <b>Compartir</b> de Safari y elegí <b>"Agregar a pantalla de inicio"</b> para instalar la radio.</div>
+
+  <!-- Espacio de publicidad (se muestra solo cuando pegues tu código de AdSense) -->
+  <div class="ads" id="ads" hidden></div>
+
+  <footer>© Radio Tinogasta Digital</footer>
+</main>
+
+<script>
+  // ============ CONFIGURACIÓN ============
+  const STREAM_URL = "https://streaming01.radiosenlinea.com.ar:9598/stream";   // URL directa del audio (https://...)
+  const NOMBRE = "Radio Tinogasta Digital";
+  const MENSAJE_WA = "¡Escuchá Radio Tinogasta Digital en vivo! 📻";
+  const NUMERO_WA = "5493837404039";               // WhatsApp de contacto de la radio
+  const MENSAJE_CONTACTO = "Hola! Te escribo desde la app de Radio Tinogasta Digital 📻";
+  // URL con los datos del tema que está sonando (opcional; ver instrucciones). Dejala vacía si no la tenés.
+  const METADATA_URL = "https://streaming01.radiosenlinea.com.ar:9598/stats?sid=1&json=1";
+  // =======================================
+
+  const app = document.getElementById('app');
+  const player = document.getElementById('player');
+  const btnPlay = document.getElementById('btnPlay');
+  const estado = document.getElementById('estado');
+  const vol = document.getElementById('vol');
+  const btnMute = document.getElementById('btnMute');
+  let quiereSonar = false, reintentos = 0, timerRe = null;
+
+  function msg(t, err) { estado.textContent = t; estado.classList.toggle('error', !!err); }
+  function ui(sonando) {
+    app.classList.toggle('playing', sonando);
+    if (!sonando) { const a = document.getElementById('ahora'); if (a) a.hidden = true; }
+  }
+
+  function conectar() {
+    clearTimeout(timerRe);
+    player.src = STREAM_URL;
+    msg('Conectando…');
+    return player.play().catch(() => {
+      if (!quiereSonar) return;
+      msg('No se pudo conectar. Reintentando…', true);
+      reintentar();
+    });
+  }
+  function reintentar() {
+    if (!quiereSonar || reintentos >= 5) {
+      if (quiereSonar) { msg('Sin señal. Tocá ▶ para reintentar.', true); }
+      quiereSonar = false; ui(false); return;
+    }
+    reintentos++;
+    timerRe = setTimeout(conectar, 2500);
+  }
+  function detener() {
+    quiereSonar = false; clearTimeout(timerRe);
+    player.pause(); player.removeAttribute('src'); player.load();
+    ui(false); msg('Pausado');
+  }
+  function alternar() {
+    if (STREAM_URL.startsWith('TU_URL')) { msg('Falta configurar la URL del streaming', true); return; }
+    if (quiereSonar) { detener(); }
+    else { quiereSonar = true; reintentos = 0; ui(true); conectar(); }
+  }
+  btnPlay.addEventListener('click', alternar);
+
+  player.addEventListener('playing', () => { reintentos = 0; ui(true); msg('🔴 EN VIVO'); });
+  player.addEventListener('waiting', () => { if (quiereSonar) msg('Cargando…'); });
+  player.addEventListener('stalled', () => { if (quiereSonar) msg('Reconectando…'); });
+  player.addEventListener('error', () => { if (quiereSonar && player.getAttribute('src')) reintentar(); });
+  player.addEventListener('ended', () => { if (quiereSonar) reintentar(); });
+
+  // Volumen y silencio
+  vol.addEventListener('input', () => { player.volume = vol.value; player.muted = false; icono(); });
+  btnMute.addEventListener('click', () => { player.muted = !player.muted; icono(); });
+  function icono() { btnMute.textContent = (player.muted || player.volume === 0) ? '🔇' : (player.volume < .5 ? '🔉' : '🔊'); }
+
+  // Controles de la pantalla bloqueada / notificación
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: 'En vivo', artist: NOMBRE, album: NOMBRE,
+      artwork: [{ src: 'icon-192.png', sizes: '192x192', type: 'image/png' }, { src: 'icon-512.png', sizes: '512x512', type: 'image/png' }]
+    });
+    navigator.mediaSession.setActionHandler('play', () => { if (!quiereSonar) alternar(); });
+    navigator.mediaSession.setActionHandler('pause', () => { if (quiereSonar) alternar(); });
+    navigator.mediaSession.setActionHandler('stop', () => { if (quiereSonar) alternar(); });
+  }
+
+  // WhatsApp de contacto
+  document.getElementById('btnContacto').href = 'https://wa.me/' + NUMERO_WA + '?text=' + encodeURIComponent(MENSAJE_CONTACTO);
+
+  // Compartir la radio
+  const urlApp = location.href.split('#')[0];
+  const textoShare = encodeURIComponent(MENSAJE_WA), urlShare = encodeURIComponent(urlApp);
+  document.getElementById('shWA').href = 'https://wa.me/?text=' + encodeURIComponent(MENSAJE_WA + ' ' + urlApp);
+  document.getElementById('shFB').href = 'https://www.facebook.com/sharer/sharer.php?u=' + urlShare;
+  document.getElementById('shTG').href = 'https://t.me/share/url?url=' + urlShare + '&text=' + textoShare;
+  document.getElementById('shX').href = 'https://twitter.com/intent/tweet?text=' + textoShare + '&url=' + urlShare;
+  const btnShare = document.getElementById('btnShare');
+  if (navigator.share) {
+    btnShare.hidden = false;
+    btnShare.addEventListener('click', () => navigator.share({ title: NOMBRE, text: MENSAJE_WA, url: urlApp }).catch(() => {}));
+  }
+  const shCopy = document.getElementById('shCopy');
+  shCopy.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(urlApp); shCopy.textContent = '✅ Link copiado'; }
+    catch (e) { prompt('Copiá este link:', urlApp); }
+    setTimeout(() => { shCopy.textContent = '🔗 Copiar link'; }, 2500);
+  });
+
+  // Quién canta: lee el tema actual del servidor de la radio (si METADATA_URL está configurada)
+  const ahora = document.getElementById('ahora');
+  function extraer(d) {
+    let t = '', a = '';
+    try {
+      if (d && Array.isArray(d.data) && d.data[0]) {            // Centova Cast
+        const x = d.data[0];
+        if (x.track) { a = x.track.artist || ''; t = x.track.title || ''; } else { t = x.title || ''; }
+      } else if (d && d.icestats) {                              // Icecast
+        let s = d.icestats.source; if (Array.isArray(s)) s = s[0];
+        if (s) { a = s.artist || ''; t = s.title || ''; }
+      } else if (d && d.now_playing && d.now_playing.song) {     // AzuraCast
+        t = d.now_playing.song.title || ''; a = d.now_playing.song.artist || '';
+      } else if (d) {                                            // Shoutcast y otros
+        t = d.songtitle || d.title || d.song || d.current_song || ''; a = d.artist || '';
+      }
+    } catch (e) {}
+    t = String(t).trim().replace(/^\d+\s*-\s*/, ''); a = String(a).trim();   // quita el número de pista ("103 - ...")
+    if (!a && t.includes(' - ')) { const i = t.indexOf(' - '); a = t.slice(0, i).trim(); t = t.slice(i + 3).trim(); }
+    return { t, a };
+  }
+  function mostrarTema(x) {
+    if (!x.t) { ahora.hidden = true; return; }
+    document.getElementById('tema').textContent = x.t;
+    document.getElementById('artista').textContent = x.a;
+    ahora.hidden = false;
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: x.t, artist: x.a || NOMBRE, album: NOMBRE,
+        artwork: [{ src: 'icon-192.png', sizes: '192x192', type: 'image/png' }, { src: 'icon-512.png', sizes: '512x512', type: 'image/png' }]
+      });
+    }
+  }
+  function cargarPorJSONP() {
+    const cb = 'tema' + Date.now(), s = document.createElement('script');
+    window[cb] = d => { mostrarTema(extraer(d)); delete window[cb]; s.remove(); };
+    s.onerror = () => { delete window[cb]; s.remove(); };
+    s.src = METADATA_URL + (METADATA_URL.includes('?') ? '&' : '?') + 'callback=' + cb;
+    document.head.appendChild(s);
+  }
+  async function cargarTema() {
+    if (!METADATA_URL || !quiereSonar) return;
+    try {
+      const r = await fetch(METADATA_URL, { cache: 'no-store' });
+      mostrarTema(extraer(await r.json()));
+    } catch (e) { cargarPorJSONP(); }
+  }
+  player.addEventListener('playing', cargarTema);
+  setInterval(cargarTema, 15000);
+
+  // Instalar como app
+  let diferido;
+  const btnInstalar = document.getElementById('btnInstalar');
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); diferido = e; btnInstalar.style.display = 'inline-flex'; });
+  btnInstalar.addEventListener('click', async () => {
+    if (!diferido) return;
+    diferido.prompt(); await diferido.userChoice; diferido = null; btnInstalar.style.display = 'none';
+  });
+  window.addEventListener('appinstalled', () => { btnInstalar.style.display = 'none'; });
+
+  // Aviso para iPhone
+  const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const yaInstalada = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  if (esIOS && !yaInstalada) document.getElementById('iosTip').style.display = 'block';
+
+  // Service Worker
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+</script>
+</body>
+</html>
